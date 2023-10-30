@@ -62,3 +62,15 @@ def get_matches(kp1, des1, kp2, des2):
     dst_pts = np.int32(np.array([kp2[m.trainIdx].pt for m in good]))
 
     return (src_pts, dst_pts), good
+
+def get_all_matches(kp, des, print_matches=False):
+    matches = []
+    goods = []
+        
+    for i in range(len(kp)-1):
+        (pts1, pts2), good = get_matches(kp[i], des[i], kp[i+1], des[i+1])
+        matches.append((pts1, pts2))
+        goods.append(good)
+        if print_matches: print("Image: ", i, ", ", i+1, " Matches: ", len(matches[i][0]))
+
+    return matches, goods
