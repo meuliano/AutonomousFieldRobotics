@@ -58,19 +58,50 @@ def get_matches(kp1, des1, kp2, des2):
         if m.distance < 0.7*n.distance:
             good.append(m)
 
-    src_pts = np.int32(np.array([kp1[m.queryIdx].pt for m in good]))
-    dst_pts = np.int32(np.array([kp2[m.trainIdx].pt for m in good]))
+    src_pts = np.float32([kp1[m.queryIdx].pt for m in good])
+    dst_pts = np.float32([kp2[m.trainIdx].pt for m in good])
 
     return (src_pts, dst_pts), good
 
-def get_all_matches(kp, des, print_matches=False):
-    matches = []
-    goods = []
-        
-    for i in range(len(kp)-1):
-        (pts1, pts2), good = get_matches(kp[i], des[i], kp[i+1], des[i+1])
-        matches.append((pts1, pts2))
-        goods.append(good)
-        if print_matches: print("Image: ", i, ", ", i+1, " Matches: ", len(matches[i][0]))
+def get_all_matches(imgs, print_matches=False):
+    # Same Hyperparameter settings as HW3
+    sift = cv2.SIFT_create(nfeatures=5000, nOctaveLayers=16, contrastThreshold=0.025, edgeThreshold=10, sigma=1.4)
 
-    return matches, goods
+    FLANN_INDEX_KDTREE = 1
+    index_params = dict(algorithm = FLANN_INDEX_KDTREE, trees = 5)
+    search_params = dict(checks=50) # or pass empty dictionary
+
+    flann = cv2.FlannBasedMatcher(index_params,search_params)
+
+    all_matches = []
+
+    for i in range(len(imgs)-1):
+        
+        key_points_0, desc_0 = sift.detectAndCompute(cv2.cvtColor(imgs[i], cv2.COLOR_BGR2GRAY), None)
+        key_points_1, desc_1 = sift.detectAndCompute(cv2.cvtColor(imgs[i+1], cv2.COLOR_BGR2GRAY), None)
+
+        matches = flann.knnMatch(desc_0,desc_1,k=2)
+
+        # bf = cv2.BFMatcher()
+        # matches = bf.knnMatch(desc_0, desc_1, k=2)
+        good = []
+        for m, n in matches:
+            if m.distance < 0.70 * n.distance:
+                good.append(m)
+
+        src_pts = np.float32([key_points_0[m.queryIdx].pt for m in good])
+        dst_pts = np.float32([key_points_1[m.trainIdx].pt for m in good])
+        all_matches.append((src_pts, dst_pts))
+
+    return all_matches
+
+    # matches = []
+    # goods = []
+        
+    # for i in range(len(kp)-1):
+    #     (pts1, pts2), good = get_matches(kp[i], des[i], kp[i+1], des[i+1])
+    #     matches.append((pts1, pts2))
+    #     goods.append(good)
+    #     if print_matches: print("Image: ", i, ", ", i+1, " Matches: ", len(matches[i][0]))
+
+    # return matches, goods

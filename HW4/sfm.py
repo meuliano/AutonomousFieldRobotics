@@ -303,5 +303,5 @@ import sys
 from os import path as os_path
 file_path = os_path.dirname(os_path.realpath(__file__))
 if __name__ == '__main__':
-    sfm = Sfm( file_path + "/Datasets/Herz-Jesus-P8")
+    sfm = Sfm( file_path + "/Herz-Jesus-P8")
     sfm(True)
