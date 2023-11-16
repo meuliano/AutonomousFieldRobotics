@@ -217,11 +217,7 @@ def plotMatches(ax, im1, im2, kps1, kps2, pairs):
         ax.plot(loc2[0]+r2*np.cos(t)+im1.shape[1], loc2[1]+r2*np.sin(t), 'c-', linewidth=1)
         ax.plot([loc1[0], loc2[0]+im1.shape[1]], [loc1[1], loc2[1]], color='{}'.format(colors[ic]), linestyle='-')
 
-
-
-
-
-def getFundamentalMat(pts1,pts2):
+def get_fundamental_matrix(pts1,pts2):
     F, mask = cv2.findFundamentalMat(pts1,pts2,cv2.FM_LMEDS,cv2.RANSAC,1.0)
     
     # only select inlier points
@@ -229,17 +225,15 @@ def getFundamentalMat(pts1,pts2):
     pts2_new = pts2[mask.ravel()==1]
     return F, mask, (pts1_new, pts2_new)
 
-def drawlines(img1,img2,lines,pts1,pts2):
+def draw_lines(img1,img2,lines,pts1,pts2):
     ''' img1 - image on which we draw the epilines for the points in img2
         lines - corresponding epilines '''
-    r,c = img1.shape
-    img1 = cv2.cvtColor(img1,cv2.COLOR_GRAY2BGR)
-    img2 = cv2.cvtColor(img2,cv2.COLOR_GRAY2BGR)
+    r,c = img1.shape[:2]
     for r,pt1,pt2 in zip(lines,pts1,pts2):
         color = tuple(np.random.randint(0,255,3).tolist())
         x0,y0 = map(int, [0, -r[2]/r[1] ])
         x1,y1 = map(int, [c, -(r[2]+r[0]*c)/r[1] ])
         img1 = cv2.line(img1, (x0,y0), (x1,y1), color,1)
-        img1 = cv2.circle(img1,tuple(pt1),5,color,-1)
-        img2 = cv2.circle(img2,tuple(pt2),5,color,-1)
+        img1 = cv2.circle(img1,tuple(pt1.astype(int)),5,color,-1)
+        img2 = cv2.circle(img2,tuple(pt2.astype(int)),5,color,-1)
     return img1,img2
