@@ -54,12 +54,12 @@ def lla_to_ecef(points_lla):
     """
     lon = np.radians(points_lla[0])  # [N,]
     lat = np.radians(points_lla[1])  # [N,]
-    alt = points_lla[2]  # [N,]
+    #alt = points_lla[2]  # [N,]
 
     N = _a / np.sqrt(1. - (_e * np.sin(lat)) ** 2.)  # [N,]
-    x = (N + alt) * np.cos(lat) * np.cos(lon)
-    y = (N + alt) * np.cos(lat) * np.sin(lon)
-    z = (N * (1. - _e ** 2.) + alt) * np.sin(lat)
+    x = (N) * np.cos(lat) * np.cos(lon)
+    y = (N) * np.cos(lat) * np.sin(lon)
+    z = (N * (1. - _e ** 2.)) * np.sin(lat)
 
     points_ecef = np.stack([x, y, z], axis=0)  # [3, N]
     return points_ecef
@@ -71,7 +71,7 @@ def ecef_to_enu(points_ecef, ref_lla):
     """
     lon = np.radians(ref_lla[0])
     lat = np.radians(ref_lla[1])
-    alt = ref_lla[2]
+    #alt = ref_lla[2]
 
     ref_ecef = lla_to_ecef(ref_lla)  # [3,]
 
